@@ -1,12 +1,15 @@
 package org.synyx.rundeck.plugin.resources.puppetdb;
 
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException;
-import com.dtolabs.rundeck.core.resources.ResourceModelSource;
+import com.dtolabs.rundeck.core.plugins.configuration.Description;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Properties;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 
@@ -15,13 +18,27 @@ import static org.mockito.Mockito.mock;
  */
 public class PuppetDBResourceModelSourceFactoryTest {
 
+    private PuppetDBResourceModelSourceFactory sut;
+
+    @Before
+    public void setup() {
+        sut = new PuppetDBResourceModelSourceFactory();
+    }
+
     @Test
     public void testCreateResourceModelSource() throws ConfigurationException {
 
         Properties configuration = mock(Properties.class);
 
-        PuppetDBResourceModelSourceFactory sut = new PuppetDBResourceModelSourceFactory();
-
         assertNotNull(sut.createResourceModelSource(configuration));
+    }
+
+    @Test
+    public void testDescribale() {
+
+        Description description = sut.getDescription();
+
+        assertThat(description.getTitle(), is("PuppetDB"));
+        assertThat(description.getName(), is("puppetdb"));
     }
 }
