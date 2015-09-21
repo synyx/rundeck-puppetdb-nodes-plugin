@@ -1,0 +1,14 @@
+apply plugin: "java"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.rundeck:rundeck-core:2.5.3")
+
+    testCompile("junit:junit:4.12")
+}
