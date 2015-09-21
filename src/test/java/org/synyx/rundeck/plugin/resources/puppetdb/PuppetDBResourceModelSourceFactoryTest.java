@@ -3,6 +3,7 @@ package org.synyx.rundeck.plugin.resources.puppetdb;
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException;
 import com.dtolabs.rundeck.core.plugins.configuration.Description;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -26,6 +27,7 @@ public class PuppetDBResourceModelSourceFactoryTest {
     }
 
     @Test
+    @Ignore
     public void testCreateResourceModelSource() throws ConfigurationException {
 
         Properties configuration = mock(Properties.class);
@@ -34,6 +36,7 @@ public class PuppetDBResourceModelSourceFactoryTest {
     }
 
     @Test
+    @Ignore
     public void testDescribale() {
 
         Description description = sut.getDescription();

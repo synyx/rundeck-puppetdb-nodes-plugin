@@ -20,6 +20,12 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
             .name("puppetdb")
             .title("PuppetDB")
             .description("Provides PuppetDB nodes for your RunDeck server.")
+            .stringProperty(PuppetDBResourceModelSource.PUPPETDB_HOST, null, true, "PuppetDB Host", "The hostname of your PuppetDB server")
+            .integerProperty(PuppetDBResourceModelSource.PUPPETDB_PORT, "8081", false, "PuppetDB Port", "Port of the PuppetDB or blank for default")
+            .stringProperty(PuppetDBResourceModelSource.SSL_DIR, "/var/lib/puppet/ssl", false, "SSL Directory", "The SSL directory of your puppet node or blank for default")
+            .stringProperty(PuppetDBResourceModelSource.CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "The filename of the Ca cert pem file or blank for default")
+            .stringProperty(PuppetDBResourceModelSource.CERT_PEM, null, true, "Cert pem", "The cert pem filename of your rundeck node")
+            .stringProperty(PuppetDBResourceModelSource.USERNAME, "rundeck", false, "Username", "The connecting username or blank for default")
             .build();
 
 
