@@ -1,7 +1,13 @@
 package org.synyx.rundeck.plugin.resources.puppetdb;
 
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException;
+import com.dtolabs.rundeck.core.resources.ResourceModelSource;
 import org.junit.Test;
+
+import java.util.Properties;
+
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 
 /**
@@ -9,9 +15,13 @@ import org.junit.Test;
  */
 public class PuppetDBResourceModelSourceFactoryTest {
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testCreateResourceModelSource() throws ConfigurationException {
 
-        new PuppetDBResourceModelSourceFactory().createResourceModelSource(null);
+        Properties configuration = mock(Properties.class);
+
+        PuppetDBResourceModelSourceFactory sut = new PuppetDBResourceModelSourceFactory();
+
+        assertNotNull(sut.createResourceModelSource(configuration));
     }
 }
