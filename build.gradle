@@ -15,3 +15,15 @@ dependencies {
 
     testCompile("junit:junit:4.12")
 }
+
+jar {
+    manifest {
+        attributes(
+                "Rundeck-Plugin-Version": "1.1",
+                "Rundeck-Plugin-File-Version": version,
+                "Rundeck-Plugin-Archive": "true",
+                "Rundeck-Plugin-Classnames": "org.synyx.rundeck.plugin.resources.puppetdb.PuppetDBResourceModelSourceFactory",
+                "Rundeck-Plugin-Libs": ""
+        )
+    }
+}
