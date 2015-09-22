@@ -1,24 +1,19 @@
 package org.synyx.rundeck.plugin.resources.puppetdb;
 
-import com.dtolabs.rundeck.core.common.INodeEntry;
 import com.dtolabs.rundeck.core.common.INodeSet;
-import com.dtolabs.rundeck.core.common.NodeEntryImpl;
-import com.dtolabs.rundeck.core.common.NodeSetImpl;
 import com.dtolabs.rundeck.core.resources.ResourceModelSource;
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceException;
-import com.puppetlabs.puppetdb.javaclient.BasicAPIPreferences;
 import com.puppetlabs.puppetdb.javaclient.PuppetDBClient;
-import com.puppetlabs.puppetdb.javaclient.PuppetDBClientFactory;
 import com.puppetlabs.puppetdb.javaclient.model.Fact;
 import com.puppetlabs.puppetdb.javaclient.model.Node;
 import com.puppetlabs.puppetdb.javaclient.query.Expression;
-import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
 import static com.puppetlabs.puppetdb.javaclient.query.Query.eq;
 import static com.puppetlabs.puppetdb.javaclient.query.Query.or;
@@ -28,109 +23,61 @@ import static com.puppetlabs.puppetdb.javaclient.query.Query.or;
  */
 public class PuppetDBResourceModelSource implements ResourceModelSource {
 
-    public static final String PUPPETDB_HOST = "PUPPETDB_HOST";
-    public static final String PUPPETDB_PORT = "PUPPETDB_PORT";
-    public static final String SSL_DIR = "SSL_DIR";
-    public static final String CA_CERT_PEM = "CA_CERT_PEM";
-    public static final String CERT_PEM = "CERT_PEM";
-    public static final String USERNAME = "USERNAME";
-
-
     private final PuppetDBClient client;
     private final String username;
+    private final Set<String> customFactNamesToQuery;
+    private final Set<String> mandatoryFactNames = new HashSet<String>(Arrays.asList("hardwaremodel", "operatingsystem", "operatingsystemrelease", "osfamily"));
 
-    public PuppetDBResourceModelSource(Properties configuration) {
+    public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, String username) {
+        this(puppetDBClient, username, null);
+    }
 
-        BasicAPIPreferences prefs = new BasicAPIPreferences();
-        prefs.setServiceHostname(configuration.getProperty(PUPPETDB_HOST));
-        prefs.setServicePort(Integer.valueOf(configuration.getProperty(PUPPETDB_PORT)));
-
-        prefs.setAllowAllHosts(false);
-
-        File sslDir = new File(configuration.getProperty(SSL_DIR));
-
-        File caCertPem = new File(sslDir, "certs/" + configuration.getProperty(CA_CERT_PEM));
-
-        if (caCertPem.canRead()) {
-            prefs.setCaCertPEM(caCertPem);
-        }
-
-        String agentCertPem = configuration.getProperty(CERT_PEM);
-        File certPem = new File(sslDir, "certs/" + agentCertPem);
-
-        prefs.setCertPEM(certPem);
-
-        File privateKeyPEM = new File(sslDir, "private_keys/" + agentCertPem);
-        prefs.setPrivateKeyPEM(privateKeyPEM);
-
-        this.client = PuppetDBClientFactory.newClient(prefs);
-
-        this.username = configuration.getProperty(USERNAME);
+    public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, String username, Set<String> customFactNamesToQuery) {
+        this.client = puppetDBClient;
+        this.username = username;
+        this.customFactNamesToQuery = customFactNamesToQuery;
     }
 
     @Override
     public INodeSet getNodes() throws ResourceModelSourceException {
+
         try {
-            return parsePuppetDBNodes(queryPuppetNodes(), queryPuppetFacts());
+            List<Node> activeNodes = client.getActiveNodes(null);
+            if (activeNodes.isEmpty()) {
+                throw new ResourceModelSourceException("Received ZERO nodes from PuppetDB!");
+            }
+
+            INodeSet rundeckNodes = new PuppetNodesToRundeckConverter(this.username).convert(activeNodes);
+
+            List<Fact> facts = client.getFacts(createFactsQuery());
+            if (facts.isEmpty()) {
+                throw new ResourceModelSourceException("Received ZERO facts from PuppetDB!");
+            }
+
+            INodeSet mappedRundeckNodes = new PuppetFactsRundeckNodeEnricher().enrich(rundeckNodes, facts);
+
+            return mappedRundeckNodes;
         } catch (IOException e) {
             throw new ResourceModelSourceException("Error requesting PuppetDB!", e);
         }
     }
 
-    private INodeSet parsePuppetDBNodes(INodeSet rundeckNodes, List<Fact> facts) throws IOException {
+    private Expression<Fact> createFactsQuery() throws IOException {
 
-        for (Fact fact : facts) {
+        ArrayList<Expression<Fact>> factsToQuery = new ArrayList<>();
 
-            INodeEntry node = rundeckNodes.getNode(fact.getCertname());
+        Set<String> factNames = new HashSet<>();
 
-            if (node != null) {
-                NodeEntryImpl nodeEdit = (NodeEntryImpl) node;
+        factNames.addAll(mandatoryFactNames);
 
-                if (fact.getName().equalsIgnoreCase("osfamily")) {
-                    nodeEdit.setOsFamily(fact.getValue());
-
-                } else if (fact.getName().equalsIgnoreCase("operatingsystem")) {
-                    nodeEdit.setOsName(fact.getValue());
-
-                } else if (fact.getName().equalsIgnoreCase("operatingsystemrelease")) {
-                    nodeEdit.setOsVersion(fact.getValue());
-
-                } else if (fact.getName().equalsIgnoreCase("hardwaremodel")) {
-                    nodeEdit.setOsArch(fact.getValue());
-                }
-            }
+        if (customFactNamesToQuery != null) {
+            factNames.addAll(customFactNamesToQuery);
         }
 
-        return rundeckNodes;
-    }
-
-    private INodeSet queryPuppetNodes() throws IOException {
-
-        List<Node> activeNodes = client.getActiveNodes(null);
-
-        final NodeSetImpl nodes = new NodeSetImpl();
-
-        for (Node activeNode : activeNodes) {
-            final NodeEntryImpl nodeEntry = new NodeEntryImpl(activeNode.getName(), activeNode.getName());
-            nodeEntry.setUsername(username);
-            nodes.putNode(nodeEntry);
-
+        for (String factName : factNames) {
+            factsToQuery.add(eq(Fact.NAME, factName));
         }
 
-        return nodes;
-    }
-
-    private List<Fact> queryPuppetFacts() throws IOException {
-
-        ArrayList<Expression<Fact>> factNames = new ArrayList<>();
-
-        factNames.add(eq(Fact.NAME, "hardwaremodel"));
-        factNames.add(eq(Fact.NAME, "lsbdistcodename"));
-        factNames.add(eq(Fact.NAME, "lsbdistdescription"));
-        factNames.add(eq(Fact.NAME, "operatingsystem"));
-        factNames.add(eq(Fact.NAME, "operatingsystemrelease"));
-        factNames.add(eq(Fact.NAME, "osfamily"));
-
-        return client.getFacts(or(factNames));
+        return or(factsToQuery);
     }
 }

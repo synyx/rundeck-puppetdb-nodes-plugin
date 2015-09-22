@@ -4,7 +4,7 @@ apply plugin: "maven"
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-configurations{
+configurations {
     //declare custom pluginLibs configuration to include only libs for this plugin
     pluginLibs
 
@@ -38,7 +38,7 @@ task copyToLib(type: Copy) {
 jar {
     from "$buildDir/output"
 
-    def libList = configurations.pluginLibs.collect{'lib/'+it.name}.join(' ')
+    def libList = configurations.pluginLibs.collect { 'lib/' + it.name }.join(' ')
 
     manifest {
         attributes(
