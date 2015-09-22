@@ -10,6 +10,8 @@ import com.dtolabs.rundeck.plugins.util.DescriptionBuilder;
 import com.puppetlabs.puppetdb.javaclient.BasicAPIPreferences;
 import com.puppetlabs.puppetdb.javaclient.PuppetDBClient;
 import com.puppetlabs.puppetdb.javaclient.PuppetDBClientFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -23,6 +25,7 @@ import java.util.Set;
 @Plugin(name = "puppetdb", service = "ResourceModelSource")
 public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFactory, Describable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PuppetDBResourceModelSource.class);
 
     public static final String PUPPETDB_HOST = "PUPPETDB_HOST";
     public static final String PUPPETDB_PORT = "PUPPETDB_PORT";
@@ -46,6 +49,8 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
     @Override
     public ResourceModelSource createResourceModelSource(Properties configuration) throws ConfigurationException {
+
+        LOG.info("Creating PuppetDB ResourceModelSource");
 
         final Set<String> facts = new HashSet<String>(Arrays.asList("lsbdistcodename", "lsbdistdescription"));
 

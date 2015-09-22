@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     compile("org.rundeck:rundeck-core:2.5.3")
+    compile("org.slf4j:slf4j-api:1.7.12")
 
     pluginLibs("com.puppetlabs.puppetdb:com.puppetlabs.puppetdb.javaclient:0.1.7-SNAPSHOT")
 

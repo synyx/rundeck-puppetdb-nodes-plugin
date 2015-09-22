@@ -7,6 +7,9 @@ import com.puppetlabs.puppetdb.javaclient.PuppetDBClient;
 import com.puppetlabs.puppetdb.javaclient.model.Fact;
 import com.puppetlabs.puppetdb.javaclient.model.Node;
 import com.puppetlabs.puppetdb.javaclient.query.Expression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +25,8 @@ import static com.puppetlabs.puppetdb.javaclient.query.Query.or;
  * @author Johannes Graf - graf@synyx.de
  */
 public class PuppetDBResourceModelSource implements ResourceModelSource {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PuppetDBResourceModelSource.class);
 
     private final PuppetDBClient client;
     private final String username;
@@ -42,16 +47,23 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
     public INodeSet getNodes() throws ResourceModelSourceException {
 
         try {
+
+            LOG.info("Requesting nodes from PuppetDB");
             List<Node> activeNodes = client.getActiveNodes(null);
             if (activeNodes.isEmpty()) {
                 throw new ResourceModelSourceException("Received ZERO nodes from PuppetDB!");
+            } else {
+                LOG.info("Received {} nodes from PuppetDB", activeNodes.size());
             }
 
             INodeSet rundeckNodes = new PuppetNodesToRundeckConverter(this.username).convert(activeNodes);
 
+            LOG.info("Requesting facts from PuppetDB");
             List<Fact> facts = client.getFacts(createFactsQuery());
             if (facts.isEmpty()) {
                 throw new ResourceModelSourceException("Received ZERO facts from PuppetDB!");
+            } else {
+                LOG.info("Received {} facts from PuppetDB", facts.size());
             }
 
             INodeSet mappedRundeckNodes = new PuppetFactsRundeckNodeEnricher().enrich(rundeckNodes, facts);
