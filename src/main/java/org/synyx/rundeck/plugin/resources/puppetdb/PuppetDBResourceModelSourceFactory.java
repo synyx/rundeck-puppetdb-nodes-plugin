@@ -50,7 +50,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     @Override
     public ResourceModelSource createResourceModelSource(Properties configuration) throws ConfigurationException {
 
-        LOG.info("Creating PuppetDB ResourceModelSource");
+        LOG.info("Creating new PuppetDB ResourceModelSource");
 
         final Set<String> facts = new HashSet<String>(Arrays.asList("lsbdistcodename", "lsbdistdescription"));
 

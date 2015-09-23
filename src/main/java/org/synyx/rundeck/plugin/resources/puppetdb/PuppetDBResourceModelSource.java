@@ -7,9 +7,13 @@ import com.puppetlabs.puppetdb.javaclient.PuppetDBClient;
 import com.puppetlabs.puppetdb.javaclient.model.Fact;
 import com.puppetlabs.puppetdb.javaclient.model.Node;
 import com.puppetlabs.puppetdb.javaclient.query.Expression;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.CacheManagerBuilder;
+import org.ehcache.Status;
+import org.ehcache.config.CacheConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +36,7 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
     private final String username;
     private final Set<String> customFactNamesToQuery;
     private final Set<String> mandatoryFactNames = new HashSet<String>(Arrays.asList("hardwaremodel", "operatingsystem", "operatingsystemrelease", "osfamily"));
+    private final CacheManager cacheManager;
 
     public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, String username) {
         this(puppetDBClient, username, null);
@@ -41,13 +46,33 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
         this.client = puppetDBClient;
         this.username = username;
         this.customFactNamesToQuery = customFactNamesToQuery;
+
+        this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+                .withCache(
+                        "puppetdb",
+                        CacheConfigurationBuilder.newCacheConfigurationBuilder().buildConfig(String.class, INodeSet.class)
+                )
+                .build(true);
     }
 
     @Override
     public INodeSet getNodes() throws ResourceModelSourceException {
 
-        try {
+        Cache<String, INodeSet> cache = cacheManager.getCache("puppetdb", String.class, INodeSet.class);
 
+        if(cache.containsKey("nodes")) {
+            LOG.info("Using cached puppet nodes");
+        } else {
+            LOG.info("Cache is empty");
+            cache.put("nodes", queryNodesFromPuppetDB());
+            LOG.info("Cache refreshed");
+        }
+
+        return cache.get("nodes");
+    }
+
+    private INodeSet queryNodesFromPuppetDB() throws ResourceModelSourceException {
+        try {
             LOG.info("Requesting nodes from PuppetDB");
             List<Node> activeNodes = client.getActiveNodes(null);
             if (activeNodes.isEmpty()) {
@@ -67,7 +92,6 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
             }
 
             INodeSet mappedRundeckNodes = new PuppetFactsRundeckNodeEnricher().enrich(rundeckNodes, facts);
-
             return mappedRundeckNodes;
         } catch (IOException e) {
             throw new ResourceModelSourceException("Error requesting PuppetDB!", e);
