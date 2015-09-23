@@ -36,30 +36,29 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
     private final String username;
     private final Set<String> customFactNamesToQuery;
     private final Set<String> mandatoryFactNames = new HashSet<String>(Arrays.asList("hardwaremodel", "operatingsystem", "operatingsystemrelease", "osfamily"));
-    private final CacheManager cacheManager;
+    private final Cache<String, INodeSet> cache;
 
     public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, String username) {
-        this(puppetDBClient, username, null);
+        this(puppetDBClient, null, username, null);
     }
 
-    public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, String username, Set<String> customFactNamesToQuery) {
+    public PuppetDBResourceModelSource(PuppetDBClient puppetDBClient, Cache<String, INodeSet> cache, String username, Set<String> customFactNamesToQuery) {
         this.client = puppetDBClient;
         this.username = username;
         this.customFactNamesToQuery = customFactNamesToQuery;
-
-        this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-                .withCache(
-                        "puppetdb",
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder().buildConfig(String.class, INodeSet.class)
-                )
-                .build(true);
+        this.cache = cache;
     }
 
     @Override
     public INodeSet getNodes() throws ResourceModelSourceException {
+        if(cache == null) {
+            return queryNodesFromPuppetDB();
+        } else {
+            return loadNodesFromCache();
+        }
+    }
 
-        Cache<String, INodeSet> cache = cacheManager.getCache("puppetdb", String.class, INodeSet.class);
-
+    private INodeSet loadNodesFromCache() throws ResourceModelSourceException {
         if(cache.containsKey("nodes")) {
             LOG.info("Using cached puppet nodes");
         } else {
@@ -67,7 +66,6 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
             cache.put("nodes", queryNodesFromPuppetDB());
             LOG.info("Cache refreshed");
         }
-
         return cache.get("nodes");
     }
 

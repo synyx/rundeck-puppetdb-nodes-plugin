@@ -1,5 +1,6 @@
 package org.synyx.rundeck.plugin.resources.puppetdb;
 
+import com.dtolabs.rundeck.core.common.INodeSet;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException;
 import com.dtolabs.rundeck.core.plugins.configuration.Describable;
@@ -10,6 +11,13 @@ import com.dtolabs.rundeck.plugins.util.DescriptionBuilder;
 import com.puppetlabs.puppetdb.javaclient.BasicAPIPreferences;
 import com.puppetlabs.puppetdb.javaclient.PuppetDBClient;
 import com.puppetlabs.puppetdb.javaclient.PuppetDBClientFactory;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.CacheManagerBuilder;
+import org.ehcache.config.CacheConfigurationBuilder;
+import org.ehcache.config.ResourcePoolsBuilder;
+import org.ehcache.expiry.Duration;
+import org.ehcache.expiry.Expirations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Johannes Graf - graf@synyx.de
@@ -33,6 +42,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     public static final String CA_CERT_PEM = "CA_CERT_PEM";
     public static final String CERT_PEM = "CERT_PEM";
     public static final String USERNAME = "USERNAME";
+    public static final String CACHE = "CACHE";
 
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
@@ -44,6 +54,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
             .stringProperty(CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "The filename of the Ca cert pem file or blank for default")
             .stringProperty(CERT_PEM, null, true, "Cert pem", "The cert pem filename of your rundeck node")
             .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username or blank for default")
+            .integerProperty(CACHE, null, false, "Caching of PuppetDB nodes", "Set the time in seconds nodes get removed from cache or blank to disable caching")
             .build();
 
 
@@ -54,14 +65,37 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
         final Set<String> facts = new HashSet<String>(Arrays.asList("lsbdistcodename", "lsbdistdescription"));
 
+        Cache<String, INodeSet> cache = createCache(configuration);
         PuppetDBClient puppetDBClient = createPuppetDBClient(configuration);
 
-        return new PuppetDBResourceModelSource(puppetDBClient, configuration.getProperty(USERNAME), facts);
+        return new PuppetDBResourceModelSource(puppetDBClient, cache, configuration.getProperty(USERNAME), facts);
     }
 
     @Override
     public Description getDescription() {
         return DESC;
+    }
+
+    private Cache<String, INodeSet> createCache(Properties configuration) {
+
+        Cache<String, INodeSet> cache = null;
+
+        if(configuration.get(CACHE) == null) {
+            LOG.info("Caching of PuppetDB nodes is disabled!");
+        } else {
+            Integer cachingInSeconds = Integer.valueOf(configuration.getProperty(CACHE));
+            CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+                    .withCache(
+                            "puppetdb",
+                            CacheConfigurationBuilder
+                                    .newCacheConfigurationBuilder()
+                                    .withExpiry(Expirations.timeToLiveExpiration(new Duration(cachingInSeconds, TimeUnit.SECONDS)))
+                                    .buildConfig(String.class, INodeSet.class)
+                    )
+                    .build(true);
+            cache = cacheManager.getCache("puppetdb", String.class, INodeSet.class);
+        }
+        return cache;
     }
 
     private PuppetDBClient createPuppetDBClient(Properties configuration) {
