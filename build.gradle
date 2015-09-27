@@ -16,14 +16,14 @@ configurations {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
     compile("org.rundeck:rundeck-core:2.5.3")
     compile("org.slf4j:slf4j-api:1.7.12")
 
-    pluginLibs("com.puppetlabs.puppetdb:com.puppetlabs.puppetdb.javaclient:0.1.7-SNAPSHOT")
+    pluginLibs("com.github.synyx:puppetdb-javaclient:0.1.6")
     pluginLibs("org.ehcache:ehcache:3.0.0.m3")
             {
                 exclude( module: 'slf4j-api')
