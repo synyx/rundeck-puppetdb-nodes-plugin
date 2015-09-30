@@ -27,6 +27,7 @@ import static com.puppetlabs.puppetdb.javaclient.query.Query.or;
 public class PuppetDBResourceModelSource implements ResourceModelSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(PuppetDBResourceModelSource.class);
+    public static final String CACHE_ENTRY_KEY = "nodes";
 
     private final PuppetDBClient client;
     private final String username;
@@ -55,14 +56,14 @@ public class PuppetDBResourceModelSource implements ResourceModelSource {
     }
 
     private INodeSet loadNodesFromCache() throws ResourceModelSourceException {
-        if(cache.containsKey("nodes")) {
+        if(cache.containsKey(CACHE_ENTRY_KEY)) {
             LOG.info("Using cached puppet nodes");
         } else {
             LOG.info("Cache is empty");
             cache.put("nodes", queryNodesFromPuppetDB());
             LOG.info("Cache refreshed");
         }
-        return cache.get("nodes");
+        return cache.get(CACHE_ENTRY_KEY);
     }
 
     private INodeSet queryNodesFromPuppetDB() throws ResourceModelSourceException {
