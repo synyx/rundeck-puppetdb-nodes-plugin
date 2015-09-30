@@ -8,10 +8,6 @@ import com.puppetlabs.puppetdb.javaclient.model.Fact;
 import com.puppetlabs.puppetdb.javaclient.model.Node;
 import com.puppetlabs.puppetdb.javaclient.query.Expression;
 import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.CacheManagerBuilder;
-import org.ehcache.Status;
-import org.ehcache.config.CacheConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
