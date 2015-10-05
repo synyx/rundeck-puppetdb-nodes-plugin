@@ -15,7 +15,6 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.CacheManagerBuilder;
 import org.ehcache.config.CacheConfigurationBuilder;
-import org.ehcache.config.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
 import org.slf4j.Logger;
@@ -36,19 +35,18 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
     private static final Logger LOG = LoggerFactory.getLogger(PuppetDBResourceModelSource.class);
 
-    public static final String PUPPETDB_HOST = "puppetdb_host";
-    public static final String PUPPETDB_PORT = "puppetdb_port";
-    public static final String SSL_DIR = "ssl_dir";
-    public static final String CA_CERT_PEM = "ca_cert_pem";
-    public static final String CERT_PEM = "cert_pem";
-    public static final String PRIVATE_KEY_PEM = "private_key_pem";
-    public static final String USERNAME = "username";
-    public static final String CACHE = "cache";
-    public static final String FACTS = "facts";
+    private static final String PUPPETDB_HOST = "puppetdb_host";
+    private static final String PUPPETDB_PORT = "puppetdb_port";
+    private static final String SSL_DIR = "ssl_dir";
+    private static final String CA_CERT_PEM = "ca_cert_pem";
+    private static final String CERT_PEM = "cert_pem";
+    private static final String PRIVATE_KEY_PEM = "private_key_pem";
+    private static final String USERNAME = "username";
+    private static final String CACHE = "cache";
+    private static final String FACTS = "facts";
 
-    public static final String[] REQUIRED_PROPERTIES = new String[]{PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, PRIVATE_KEY_PEM, USERNAME};
-
-    public static final String FACTS_DELIMITER = ";";
+    private static final String FACTS_DELIMITER = ";";
+    private static final String[] REQUIRED_PROPERTIES = {PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, PRIVATE_KEY_PEM, USERNAME};
 
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
