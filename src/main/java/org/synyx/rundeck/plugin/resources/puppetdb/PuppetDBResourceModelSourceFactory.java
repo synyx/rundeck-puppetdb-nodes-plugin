@@ -36,19 +36,19 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
     private static final Logger LOG = LoggerFactory.getLogger(PuppetDBResourceModelSource.class);
 
-    public static final String PUPPETDB_HOST = "PUPPETDB_HOST";
-    public static final String PUPPETDB_PORT = "PUPPETDB_PORT";
-    public static final String SSL_DIR = "SSL_DIR";
-    public static final String CA_CERT_PEM = "CA_CERT_PEM";
-    public static final String CERT_PEM = "CERT_PEM";
-    public static final String USERNAME = "USERNAME";
-    public static final String CACHE = "CACHE";
+    public static final String PUPPETDB_HOST = "puppetdb_host";
+    public static final String PUPPETDB_PORT = "puppetdb_port";
+    public static final String SSL_DIR = "ssl_dir";
+    public static final String CA_CERT_PEM = "ca_cert_pem";
+    public static final String CERT_PEM = "cert_pem";
+    public static final String USERNAME = "username";
+    public static final String CACHE = "cache";
+    public static final String FACTS = "facts";
 
     public static final String[] REQUIRED_PROPERTIES = new String[]{PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, USERNAME};
 
     public static final String FACTS_DELIMITER = ";";
 
-    public static final String FACTS = "FACTS";
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
             .title("PuppetDB")
