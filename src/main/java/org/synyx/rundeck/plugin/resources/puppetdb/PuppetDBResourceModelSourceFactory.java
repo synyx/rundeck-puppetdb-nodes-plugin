@@ -43,7 +43,9 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     public static final String CERT_PEM = "CERT_PEM";
     public static final String USERNAME = "USERNAME";
     public static final String CACHE = "CACHE";
+    public static final String FACTS_DELIMITER = ";";
 
+    public static final String FACTS = "FACTS";
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
             .title("PuppetDB")
@@ -54,6 +56,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
             .stringProperty(CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "The filename of the Ca cert pem file or blank for default")
             .stringProperty(CERT_PEM, null, true, "Cert pem", "The cert pem filename of your rundeck node")
             .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username or blank for default")
+            .stringProperty(FACTS, null, false, "Facts mapped to tags", "Additional facts, that will be mapped to your nodes as tags (semicolon separated values)")
             .integerProperty(CACHE, null, false, "Caching of PuppetDB nodes", "Set the time in seconds nodes get removed from cache or blank to disable caching")
             .build();
 
@@ -63,10 +66,9 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
         LOG.info("Creating new PuppetDB ResourceModelSource");
 
-        final Set<String> facts = new HashSet<String>(Arrays.asList("lsbdistcodename", "lsbdistdescription"));
-
         Cache<String, INodeSet> cache = createCache(configuration);
         PuppetDBClient puppetDBClient = createPuppetDBClient(configuration);
+        Set<String> facts = parseFacts(configuration);
 
         return new PuppetDBResourceModelSource(puppetDBClient, cache, configuration.getProperty(USERNAME), facts);
     }
@@ -123,5 +125,16 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
         prefs.setPrivateKeyPEM(privateKeyPEM);
 
         return PuppetDBClientFactory.newClient(prefs);
+    }
+
+    private Set<String> parseFacts(Properties configuration) {
+
+        String rawFacts = configuration.getProperty(FACTS);
+
+        if(rawFacts == null) {
+            return null;
+        }
+
+        return new HashSet<>(Arrays.asList(rawFacts.split(FACTS_DELIMITER)));
     }
 }
