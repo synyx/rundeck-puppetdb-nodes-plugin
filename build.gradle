@@ -13,6 +13,8 @@ apply plugin: "findbugs"
 apply plugin: "pmd"
 apply plugin: "net.researchgate.release"
 apply plugin: "com.jfrog.bintray"
+apply plugin: "maven-publish"
+
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -70,6 +72,17 @@ jar {
 //set jar task to depend on copyToLib
 jar.dependsOn(copyToLib)
 
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId "org.synyx.rundeck.plugin.resources"
+            artifactId jar.baseName
+            version project.version
+        }
+    }
+}
+
 bintray {
     user = System.getenv("BINTRAY_USER")
     key = System.getenv("BINTRAY_KEY")
@@ -86,7 +99,7 @@ bintray {
         labels = ["puppetdb", "rundeck"]
         publicDownloadNumbers = false
         version {
-            name = $project.version
+            name = project.version
         }
     }
 }
