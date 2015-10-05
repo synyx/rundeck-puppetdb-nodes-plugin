@@ -1,6 +1,16 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'net.researchgate:gradle-release:2.2.2'
+    }
+}
+
 apply plugin: "java"
 apply plugin: "findbugs"
 apply plugin: "pmd"
+apply plugin: 'net.researchgate.release'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
