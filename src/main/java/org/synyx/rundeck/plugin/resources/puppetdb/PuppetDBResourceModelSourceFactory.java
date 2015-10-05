@@ -43,6 +43,9 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     public static final String CERT_PEM = "CERT_PEM";
     public static final String USERNAME = "USERNAME";
     public static final String CACHE = "CACHE";
+
+    public static final String[] REQUIRED_PROPERTIES = new String[]{PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, USERNAME};
+
     public static final String FACTS_DELIMITER = ";";
 
     public static final String FACTS = "FACTS";
@@ -66,11 +69,30 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
         LOG.info("Creating new PuppetDB ResourceModelSource");
 
+        validateConfiguration(configuration);
+
         Cache<String, INodeSet> cache = createCache(configuration);
         PuppetDBClient puppetDBClient = createPuppetDBClient(configuration);
         Set<String> facts = parseFacts(configuration);
 
         return new PuppetDBResourceModelSource(puppetDBClient, cache, configuration.getProperty(USERNAME), facts);
+    }
+
+    private void validateConfiguration(Properties configuration) throws ConfigurationException {
+
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("Validating PuppetDB ResourceModelSource configuration");
+        }
+
+        for(String propertyName : REQUIRED_PROPERTIES){
+            if(configuration.getProperty(propertyName) == null) {
+                throw new ConfigurationException("Found mandatory property with " + propertyName + "=null");
+            }
+        }
+
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("PuppetDB ResourceModelSource configuration is valid");
+        }
     }
 
     @Override
