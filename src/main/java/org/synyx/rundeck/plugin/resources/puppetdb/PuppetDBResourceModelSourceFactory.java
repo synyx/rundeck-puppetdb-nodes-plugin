@@ -104,7 +104,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
 
         BasicAPIPreferences prefs = new BasicAPIPreferences();
         prefs.setServiceHostname(configuration.getProperty(PuppetDBResourceModelSourceFactory.PUPPETDB_HOST));
-        prefs.setServicePort(Integer.valueOf(configuration.getProperty(PuppetDBResourceModelSourceFactory.PUPPETDB_PORT)));
+        prefs.setServicePort(Integer.parseInt(configuration.getProperty(PuppetDBResourceModelSourceFactory.PUPPETDB_PORT)));
 
         prefs.setAllowAllHosts(false);
 
