@@ -50,14 +50,14 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
             .name("puppetdb")
             .title("PuppetDB")
             .description("Provides PuppetDB nodes for your RunDeck server.")
-            .stringProperty(PUPPETDB_HOST, null, true, "PuppetDB Host", "The hostname of your PuppetDB server")
-            .integerProperty(PUPPETDB_PORT, "8081", false, "PuppetDB Port", "Port of the PuppetDB or blank for default")
-            .stringProperty(SSL_DIR, "/var/lib/puppet/ssl", false, "SSL Directory", "The SSL directory of your puppet node or blank for default")
-            .stringProperty(CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "The filename of the Ca cert pem file or blank for default")
-            .stringProperty(CERT_PEM, null, true, "Cert pem", "The cert pem filename of your rundeck node")
-            .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username or blank for default")
+            .stringProperty(PUPPETDB_HOST, null, true, "Host", "Hostname of your PuppetDB server")
+            .integerProperty(PUPPETDB_PORT, "8081", false, "Port", "Port of your PuppetDB or blank for 8081")
+            .stringProperty(SSL_DIR, "/var/lib/puppet/ssl", false, "SSL Directory", "SSL directory of your puppet node or blank for var/lib/puppet/ssl")
+            .stringProperty(CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "Filename of the Ca cert pem file or blank for ca.pem")
+            .stringProperty(CERT_PEM, null, true, "Cert pem", "Cert pem filename of your rundeck node")
+            .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username or blank for rundeck")
             .stringProperty(FACTS, null, false, "Facts mapped to tags", "Additional facts, that will be mapped to your nodes as tags (semicolon separated values)")
-            .integerProperty(CACHE, null, false, "Caching of PuppetDB nodes", "Set the time in seconds nodes get removed from cache or blank to disable caching")
+            .integerProperty(CACHE, null, false, "Caching of PuppetDB nodes", "Set the time-to-live in seconds nodes get held in cache or blank to disable caching")
             .build();
 
 
