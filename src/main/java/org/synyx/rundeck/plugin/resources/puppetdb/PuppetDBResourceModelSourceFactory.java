@@ -51,7 +51,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
             .title("PuppetDB")
-            .description("Provides PuppetDB nodes for your RunDeck server.")
+            .description("Provides PuppetDB nodes to your RunDeck server.")
             .stringProperty(PUPPETDB_HOST, null, true, "Host", "Hostname of your PuppetDB server")
             .integerProperty(PUPPETDB_PORT, "8081", false, "Port", "Port of your PuppetDB")
             .stringProperty(CA_CERT_PEM, "/var/lib/puppet/ssl/certs/ca.pem", false, "CA cert PEM", "Path of the CA cert PEM")
