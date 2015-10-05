@@ -46,7 +46,7 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     private static final String FACTS = "facts";
 
     private static final String FACTS_DELIMITER = ";";
-    private static final String[] REQUIRED_PROPERTIES = {PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, PRIVATE_KEY_PEM, USERNAME};
+    private static final String[] REQUIRED_PROPERTIES = {PUPPETDB_HOST, PUPPETDB_PORT, CA_CERT_PEM, CERT_PEM, PRIVATE_KEY_PEM, USERNAME};
 
     private static final Description DESC = DescriptionBuilder.builder()
             .name("puppetdb")
