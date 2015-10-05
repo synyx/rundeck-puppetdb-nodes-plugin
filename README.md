@@ -38,7 +38,7 @@ resources.source.1.config.ca_cert_pem=/var/lib/puppet/ssl/certs/ca.pem
 resources.source.1.config.cache=300
 resources.source.1.config.cert_pem=/var/lib/puppet/ssl/certs/myrundeckhost.pem
 resources.source.1.config.private_key_pem=/var/lib/puppet/ssl/private_keys/myrundeckhost.pem
-resources.source.1.config.puppetdb_host=mypuppetdb.host
+resources.source.1.config.puppetdb_host=mypuppetdb
 resources.source.1.config.puppetdb_port=8081
 resources.source.1.config.username=rundeck
 ```
