@@ -1,6 +1,7 @@
 # Rundeck PuppetDB Nodes Plugin
 
 [![Build Status](https://travis-ci.org/synyx/rundeck-puppetdb-nodes-plugin.svg?branch=master)](https://travis-ci.org/synyx/rundeck-puppetdb-nodes-plugin)
+[![Download](https://api.bintray.com/packages/synyx/rundeck-plugins/rundeck-puppetdb-nodes-plugin/images/download.svg) ](https://bintray.com/synyx/rundeck-plugins/rundeck-puppetdb-nodes-plugin/_latestVersion)
 
 This is a [Resource Model Source plugin](http://rundeck.org/docs/developer/resource-model-source-plugin.html)
 for [RunDeck](http://rundeck.org) 2.5+ that provides PuppetDB nodes for your

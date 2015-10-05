@@ -4,6 +4,7 @@ buildscript {
     }
     dependencies {
         classpath "net.researchgate:gradle-release:2.2.2"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"
     }
 }
 
@@ -68,3 +69,24 @@ jar {
 }
 //set jar task to depend on copyToLib
 jar.dependsOn(copyToLib)
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    configurations = ["archives"]
+    pkg {
+        repo = "rundeck-plugins"
+        name = "rundeck-puppetdb-nodes-plugin"
+        userOrg = "synyx"
+        desc = "Provides PuppetDB nodes for Rundeck"
+        websiteUrl = "https://github.com/synyx/rundeck-puppetdb-nodes-plugin"
+        issueTrackerUrl = "https://github.com/synyx/rundeck-puppetdb-nodes-plugin/issues"
+        vcsUrl = "https://github.com/synyx/rundeck-puppetdb-nodes-plugin.git"
+        licenses = ["MIT"]
+        labels = ["puppetdb", "rundeck"]
+        publicDownloadNumbers = false
+        version {
+            name = $project.version
+        }
+    }
+}
