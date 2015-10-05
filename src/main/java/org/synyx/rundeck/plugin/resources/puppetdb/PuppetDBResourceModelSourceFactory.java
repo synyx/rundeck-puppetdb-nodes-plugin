@@ -41,11 +41,12 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     public static final String SSL_DIR = "ssl_dir";
     public static final String CA_CERT_PEM = "ca_cert_pem";
     public static final String CERT_PEM = "cert_pem";
+    public static final String PRIVATE_KEY_PEM = "private_key_pem";
     public static final String USERNAME = "username";
     public static final String CACHE = "cache";
     public static final String FACTS = "facts";
 
-    public static final String[] REQUIRED_PROPERTIES = new String[]{PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, USERNAME};
+    public static final String[] REQUIRED_PROPERTIES = new String[]{PUPPETDB_HOST, PUPPETDB_PORT, SSL_DIR, CA_CERT_PEM, CERT_PEM, PRIVATE_KEY_PEM, USERNAME};
 
     public static final String FACTS_DELIMITER = ";";
 
@@ -54,11 +55,11 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
             .title("PuppetDB")
             .description("Provides PuppetDB nodes for your RunDeck server.")
             .stringProperty(PUPPETDB_HOST, null, true, "Host", "Hostname of your PuppetDB server")
-            .integerProperty(PUPPETDB_PORT, "8081", false, "Port", "Port of your PuppetDB or blank for 8081")
-            .stringProperty(SSL_DIR, "/var/lib/puppet/ssl", false, "SSL Directory", "SSL directory of your puppet node or blank for var/lib/puppet/ssl")
-            .stringProperty(CA_CERT_PEM, "ca.pem", false, "Ca cert pem", "Filename of the Ca cert pem file or blank for ca.pem")
-            .stringProperty(CERT_PEM, null, true, "Cert pem", "Cert pem filename of your rundeck node")
-            .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username or blank for rundeck")
+            .integerProperty(PUPPETDB_PORT, "8081", false, "Port", "Port of your PuppetDB")
+            .stringProperty(CA_CERT_PEM, "/var/lib/puppet/ssl/certs/ca.pem", false, "Ca cert PEM", "Path of the CA cert PEM")
+            .stringProperty(CERT_PEM, null, true, "Cert PEM", "Path of the rundeck node cert PEMe.g. /var/lib/puppet/ssl/certs/myrundecknode.pem")
+            .stringProperty(PRIVATE_KEY_PEM, null, true, "Private key PEM", "Path of the rundeck node private key PEM e.g. /var/lib/puppet/ssl/private_keys/myrundecknode.pem")
+            .stringProperty(USERNAME, "rundeck", false, "Username", "The connecting username")
             .stringProperty(FACTS, null, false, "Facts mapped to tags", "Additional facts, that will be mapped to your nodes as tags (semicolon separated values)")
             .integerProperty(CACHE, null, false, "Caching of PuppetDB nodes", "Set the time-to-live in seconds nodes get held in cache or blank to disable caching")
             .build();
@@ -125,26 +126,15 @@ public class PuppetDBResourceModelSourceFactory implements ResourceModelSourceFa
     private PuppetDBClient createPuppetDBClient(Properties configuration) {
 
         BasicAPIPreferences prefs = new BasicAPIPreferences();
+
         prefs.setServiceHostname(configuration.getProperty(PuppetDBResourceModelSourceFactory.PUPPETDB_HOST));
         prefs.setServicePort(Integer.parseInt(configuration.getProperty(PuppetDBResourceModelSourceFactory.PUPPETDB_PORT)));
 
         prefs.setAllowAllHosts(false);
 
-        File sslDir = new File(configuration.getProperty(PuppetDBResourceModelSourceFactory.SSL_DIR));
-
-        File caCertPem = new File(sslDir, "certs/" + configuration.getProperty(PuppetDBResourceModelSourceFactory.CA_CERT_PEM));
-
-        if (caCertPem.canRead()) {
-            prefs.setCaCertPEM(caCertPem);
-        }
-
-        String agentCertPem = configuration.getProperty(PuppetDBResourceModelSourceFactory.CERT_PEM);
-        File certPem = new File(sslDir, "certs/" + agentCertPem);
-
-        prefs.setCertPEM(certPem);
-
-        File privateKeyPEM = new File(sslDir, "private_keys/" + agentCertPem);
-        prefs.setPrivateKeyPEM(privateKeyPEM);
+        prefs.setCaCertPEM(new File(configuration.getProperty(PuppetDBResourceModelSourceFactory.CA_CERT_PEM)));
+        prefs.setCertPEM(new File(configuration.getProperty(PuppetDBResourceModelSourceFactory.CERT_PEM)));
+        prefs.setPrivateKeyPEM(new File(configuration.getProperty(PuppetDBResourceModelSourceFactory.PRIVATE_KEY_PEM)));
 
         return PuppetDBClientFactory.newClient(prefs);
     }
