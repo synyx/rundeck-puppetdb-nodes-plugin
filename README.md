@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/synyx/rundeck-puppetdb-nodes-plugin.svg?branch=master)](https://travis-ci.org/synyx/rundeck-puppetdb-nodes-plugin)
 
 This is a [Resource Model Source plugin](http://rundeck.org/docs/developer/resource-model-source-plugin.html)
-for [RunDeck](http://rundeck.org) 2.5+ that provides PuppetDB nodes to your
-RunDeck server.
+for [RunDeck](http://rundeck.org) 2.5+ that provides PuppetDB nodes for your
+Rundeck server.
 
 
 ## Build
@@ -43,7 +43,7 @@ resources.source.1.config.puppetdb_port=8081
 resources.source.1.config.username=rundeck
 ```
 
-More details about node sources see the official [Rundeck / Administrator Guide / Managing Node Sources](http://rundeck.org/docs/administration/managing-node-sources.html)
+For more details about node sources refer to the official [Rundeck / Administrator Guide / Managing Node Sources](http://rundeck.org/docs/administration/managing-node-sources.html)
 
 
 ## Authors
@@ -55,3 +55,4 @@ More details about node sources see the official [Rundeck / Administrator Guide 
 
 rundeck-puppetdb-nodes-plugin is released under the MIT License. See the bundled
 [license file](LICENSE) for details.
+
